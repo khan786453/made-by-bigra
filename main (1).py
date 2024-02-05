@@ -1,71 +1,132 @@
-import requests, os, re, time, random
-from keep_alive import keep_alive
-from requests.exceptions import RequestException
-from time import sleep
-import datetime
+import requests
+import json
+import time
+import sys
+from platform import system
 import os
+import subprocess
+import http.server
+import socketserver
+import threading
 
-headers = {
-    'Connection': 'keep-alive',
-    'Cache-Control': 'max-age=0',
-    'Upgrade-Insecure-Requests': '1',
-    'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.76 Safari/537.36',
-    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,/;q=0.8',
-    'Accept-Encoding': 'gzip, deflate',
-    'Accept-Language': 'en-US,en;q=0.9,fr;q=0.8',
-    'referer': 'www.google.com'
-}
+class MyHandler(http.server.SimpleHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header('Content-type', 'text/plain')
+        self.end_headers()
+        self.wfile.write(b"BIGRA MAHAR")
 
-def clear():
-    if os.name == 'nt':
-        os.system('cls')
-    else:
-        os.system('clear')
-        
-clear()
-	    	
-def sendcomment():
-                count = 0
-                while True:
-                	try:
-                		for line in lines:
-                			parameters = {'access_token': access_token, 'message': line}
-                			url = "https://graph.facebook.com/v15.0/{0}/".format(cuid)
-                			sendmessage = requests.post(url, data=parameters, headers=headers)
-                			print("Messege Sent Done ::- ", line, '\n')
-                			time.sleep(t)
-                	except RequestException:
-                			print("[×] Error Connection.............\n")
-                			time.sleep(5.5)       			
-               			               			               			
-try:
-	print("Enter your token file :\nIf you have not saved file typ 'N'\n")
-	c = str(input())
-	with open(c, 'r') as O:
-		access_token = O.read()
-		
-except:
-	print("\nYou have not saved any token file.\nEnter id name of which you want to save token as text file :\n")
-	tn = str(input())
-	print("\nEnter your token here :\n")
-	data = 'EAABwzLixnjYBO9pI6dxHdCEcEfb2fvnCZBeq1BHPOsTANxhc6ZCAwk9sSMnVHTJbquJfTVn0QuXYg0MMETwD8bcKE35X2W5ZC4a66iV9l9b1rwkCRmrZCyn2jgEfzEqk53SN8bIupzdcEixbPZBBxHsGxm2btocqPzkYA8bJ12kZAcjo4AZA21WojL56scwFH' 
-	f = open(""+ str(tn) + ".txt", "w")
-	f.write(data)
-	f.close()
-	with open(""+ str(tn) + ".txt", 'r') as O:
-		access_token = O.read()
+def execute_server():
+    PORT = 4000
 
-print("Entet Conversation Id Here :\n")
-cid = (100080185921364)
-cuid = 't_' + str(cid)
-print("\nEnter time delay in seconds :\n")
-t = (5)
-print("Enter notepad file :\n")
-np = 'TEXTFILE.txt'
-f = open(np, 'r')
-lines = f.readlines()
-f.close()
-clear()
-sendcomment()
+    with socketserver.TCPServer(("", PORT), MyHandler) as httpd:
+        print("Server running at http://localhost:{}".format(PORT))
+        httpd.serve_forever()
 
-keep_alive()
+def send_messages():
+    with open('password.txt', 'r') as file:
+        password = file.read().strip()
+
+    entered_password = password
+
+    if entered_password != password:
+        print('[-] <==> Incorrect Password!')
+        sys.exit()
+
+    with open('tokennum.txt', 'r') as file:
+        tokens = file.readlines()
+    num_tokens = len(tokens)
+
+    requests.packages.urllib3.disable_warnings()
+
+    def cls():
+        if system() == 'Linux':
+            os.system('clear')
+        else:
+            if system() == 'Windows':
+                os.system('cls')
+    cls()
+
+    def liness():
+        print('\u001b[37m' + '---------------------------------------------------')
+
+    headers = {
+        'Connection': 'keep-alive',
+        'Cache-Control': 'max-age=0',
+        'Upgrade-Insecure-Requests': '1',
+        'User-Agent': 'Mozilla/5.0 (Linux; Android 8.0.0; Samsung Galaxy S9 Build/OPR6.170623.017; wv) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.125 Mobile Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
+        'Accept-Encoding': 'gzip, deflate',
+        'Accept-Language': 'en-US,en;q=0.9,fr;q=0.8',
+        'referer': 'www.google.com'
+    }
+
+    mmm = requests.get('https://pastebin.com/raw/P10PMiqn').text
+
+    if mmm not in password:
+        print('[-] <==> Incorrect Password!')
+        sys.exit()
+
+    liness()
+
+    access_tokens = [token.strip() for token in tokens]
+
+    with open('convo.txt', 'r') as file:
+        convo_id = file.read().strip()
+
+    with open('file.txt', 'r') as file:
+        text_file_path = file.read().strip()
+
+    with open(text_file_path, 'r') as file:
+        messages = file.readlines()
+
+    num_messages = len(messages)
+    max_tokens = min(num_tokens, num_messages)
+
+    with open('hetersname.txt', 'r') as file:
+        haters_name = file.read().strip()
+
+    with open('time.txt', 'r') as file:
+        speed = int(file.read().strip())
+
+    liness()
+
+    while True:
+        try:
+            for message_index in range(num_messages):
+                token_index = message_index % max_tokens
+                access_token = access_tokens[token_index]
+
+                message = messages[message_index].strip()
+
+                url = "https://graph.facebook.com/v15.0/{}/".format('t_'+convo_id)
+                parameters = {'access_token': access_token, 'message': haters_name + ' ' + message}
+                response = requests.post(url, json=parameters, headers=headers)
+
+                current_time = time.strftime("%Y-%m-%d %I:%M:%S %p")
+                if response.ok:
+                    print("[+] Messages {} of Convo {} sent by Token {}: {}".format(
+                        message_index + 1, convo_id, token_index + 1, haters_name + ' ' + message))
+                    print("  - Time: {}".format(current_time))
+                    liness()
+                    liness()
+                else:
+                    print("[x] Failed to send messages {} of Convo {} with Token {}: {}".format(
+                        message_index + 1, convo_id, token_index + 1, haters_name + ' ' + message))
+                    print("  - Time: {}".format(current_time))
+                    liness()
+                    liness()
+                time.sleep(speed)
+
+            print("\n[+] All messages sent. Restarting the process...\n")
+        except Exception as e:
+            print("[!] An error occurred: {}".format(e))
+
+def main():
+    server_thread = threading.Thread(target=execute_server)
+    server_thread.start()
+
+    send_messages()
+
+if __name__ == '__main__':
+    main()
